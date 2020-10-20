@@ -20,7 +20,11 @@ pub fn query<T: DeserializeOwned + Send + 'static>(
 
         let query_encoded = serde_urlencoded::from_str(query_string).map_err(|e| {
             tracing::debug!("failed to decode query string '{}': {:?}", query_string, e);
-            reject::missing_header(&*format!("failed to decode query string '{}': {:?}", query_string, e))
+            let mut phrase =  "failed to decode query string: ".to_string();
+            phrase.push_str(query_string);
+            phrase.push_str(": ");
+            phrase.push_str(e.description());
+            reject::missing_header(phrase.as_ref())
         });
         future::ready(query_encoded)
     })
