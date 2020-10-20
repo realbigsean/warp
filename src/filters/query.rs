@@ -3,6 +3,7 @@
 use futures::future;
 use serde::de::DeserializeOwned;
 use serde_urlencoded;
+use std::error::Error;
 
 use crate::filter::{filter_fn_one, Filter, One};
 use crate::reject::{self, Rejection};
