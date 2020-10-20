@@ -3,7 +3,6 @@
 use futures::future;
 use serde::de::DeserializeOwned;
 use serde_urlencoded;
-use std::error::Error;
 
 use crate::filter::{filter_fn_one, Filter, One};
 use crate::reject::{self, Rejection};
@@ -24,8 +23,8 @@ pub fn query<T: DeserializeOwned + Send + 'static>(
             let mut phrase =  "failed to decode query string: ".to_string();
             phrase.push_str(query_string);
             phrase.push_str(": ");
-            phrase.push_str(e.description());
-            reject::missing_header(phrase.as_ref())
+            phrase.push_str(e.to_string().as_str());
+            reject::invalid_query(phrase)
         });
         future::ready(query_encoded)
     })
@@ -38,7 +37,7 @@ pub fn raw() -> impl Filter<Extract = One<String>, Error = Rejection> + Copy {
             .query()
             .map(|q| q.to_owned())
             .map(Ok)
-            .unwrap_or_else(|| Err(reject::invalid_query()));
+            .unwrap_or_else(|| Err(reject::invalid_query("invalid query".to_string())));
         future::ready(route)
     })
 }

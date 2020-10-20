@@ -57,8 +57,8 @@ pub fn not_found() -> Rejection {
 
 // 400 Bad Request
 #[inline]
-pub(crate) fn invalid_query() -> Rejection {
-    known(InvalidQuery { _p: () })
+pub(crate) fn invalid_query(name: String) -> Rejection {
+    known(InvalidQuery { name })
 }
 
 // 400 Bad Request
@@ -475,9 +475,23 @@ fn preferred<'a>(a: &'a Rejections, b: &'a Rejections) -> &'a Rejections {
     }
 }
 
-unit_error! {
-    /// Invalid query
-    pub InvalidQuery: "Invalid query string"
+/// Missing request header
+#[derive(Debug)]
+pub struct InvalidQuery {
+    name: String,
+}
+
+impl InvalidQuery {
+    /// Retrieve the name of the header that was missing
+    pub fn name(&self) -> &str {
+        self.name.as_str()
+    }
+}
+
+impl ::std::fmt::Display for InvalidQuery {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "Invalid query {:?}", self.name)
+    }
 }
 
 unit_error! {
